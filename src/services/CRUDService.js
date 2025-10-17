@@ -96,11 +96,26 @@ let updateUserData = (data) => {
         }
     });
 };
-
+let deleteUserById = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let user = await db.User.findOne({
+                where: { id }
+            })
+            if (user) {
+                user.destroy();
+            }
+            resolve();
+        } catch (e) {
+            reject(e);
+        }
+    })
+};
 
 export default {
     createNewUser,
     getAllUsers,
+    deleteUserById,
     getUserInfoById,
     updateUserData
 };
