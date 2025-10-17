@@ -33,11 +33,42 @@ let displayGETCRUD = async (req, res) => {
         dataTable: data
     });
 };
+let getEditCRUD = async (req, res) => {
+    try {
+        let userId = req.query.id;
+        if (!userId) {
+            return res.send("Missing user ID!");
+        }
+
+        let userData = await CRUDservice.getUserInfoById(userId);
+
+        if (!userData || Object.keys(userData).length === 0) {
+            return res.send("User not found!");
+        }
+
+        return res.render("editCRUD.ejs", { user: userData });
+    } catch (e) {
+        console.error(e);
+        return res.status(500).send("Server error!");
+    }
+};
+let putCRUD = async (req, res) => {
+    let data = req.body;
+    let allUsers = await CRUDservice.updateUserData(data);
+    return res.render(
+        "displayCRUD.ejs", {
+        dataTable: allUsers
+    }
+    )
+}
+
 
 export default {
     getHomePage,
     getCRUD,
     postCRUD,
+    putCRUD,
     displayGETCRUD,
+    getEditCRUD,
     CRUDservice
 };

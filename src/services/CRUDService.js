@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import db from '../models/index.js';
+import { where } from 'sequelize';
 
 const salt = bcrypt.genSaltSync(10);
 
@@ -51,7 +52,55 @@ let getAllUsers = () => {
         }
     });
 }
+let getUserInfoById = async (userId) => {
+    try {
+        if (!userId) return {};
+        const user = await db.User.findOne({
+            where: { id: userId },
+            raw: true,
+        });
+        return user || {};
+    } catch (error) {
+        console.error("Error fetching user by ID:", error);
+        throw error;
+    }
+};
+let updateUserData = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!data.id) {
+                console.log("⚠️ Missing ID in updateUserData:", data);
+                return resolve(); // hoặc reject("Missing ID");
+            }
+
+            let user = await db.User.findOne({
+                where: { id: data.id }
+            });
+            if (user) {
+                user.firstName = data.firstName;
+                user.lastName = data.lastName;
+                user.address = data.address;
+                user.phonenumber = data.phonenumber;
+                user.gender = data.gender;
+
+                await user.save();
+
+                let allUsers = await db.User.findAll();
+                resolve(allUsers);
+            } else {
+                resolve("User not found");
+            }
+        } catch (e) {
+            console.log(e);
+            reject(e);
+        }
+    });
+};
+
+
 export default {
     createNewUser,
     getAllUsers,
+    getUserInfoById,
+    updateUserData
 };
